@@ -87,11 +87,11 @@ function init(){
 	})();
 	
 	if (typeof module !== "undefined" && typeof module.exports !== "undefined") {
-    	module.exports = addLayoutChilds;
+    	module.exports = applyLayoutFunctions;
 	}
 }
 
-function addLayoutChilds(raw,node_obj) {
+function applyLayoutFunctions(raw,node_obj) {
 	var nodeType = node_obj.type;
 	if(layoutFunctions.hasOwnProperty(nodeType)){
 		layoutFunctions[nodeType](raw,node_obj);

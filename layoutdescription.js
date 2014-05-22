@@ -1,6 +1,4 @@
 
-
-  
 var layoutDescription = {
 	Program					:	['*body/;']
 	,BlockStatement			:	['{','/body','}','*body/;']
@@ -13,15 +11,15 @@ var layoutDescription = {
 	,ForStatement			:	['for','(','/init',';','/test',';','/update',')','/body']
 	,ForInStatement			:	['for','(','/left','in','/right',')','/body']
 	,FunctionDeclaration	:	['function','/id','(','/params','/body','*params/,']
-	,VariableDeclaration	:	['var','/declarations','*declarations/,']
+	,VariableDeclaration	:	['/kind','/declarations','*declarations/,']
 	,ArrayExpression		:	['[','/elements','*elements/,',']']
 	,ObjectExpression		:	['{','/properties','*properties/,','}']
 	,Property				:	['/key',':','/value']
 	,FunctionExpression		:	['function','/id','(','/params','/body','*params/,']
-	,UnaryExpression		:	['/operator/val','/argument']
-	,BinaryExpression		:	['/left','/operator/val','/right']
-	,AssignmentExpression	:	['/left','/operator/val','/right']
-	,LogicalExpression		:	['/left','/operator/val','/right']
+	,UnaryExpression		:	['/operator','/argument']
+	,BinaryExpression		:	['/left','/operator','/right']
+	,AssignmentExpression	:	['/left','/operator','/right']
+	,LogicalExpression		:	['/left','/operator','/right']
 	,ConditionalExpression	:	['/test','?','/consequent',':','/alternate']
 	,CallExpression			: 	['/callee','(','/arguments',')', '*arguments/,']
 	,MemberExpression		:	['/object','.','/property']
@@ -29,13 +27,7 @@ var layoutDescription = {
 	,SequenceExpression		:	['*expressions/,']
 	,SwitchStatement		:	['switch','(','/discriminant',')','{','/cases','}', '*cases/;']
 	,BracketExpression		:	['(','/value',')']
-	
 	/*
-	,EmptyStatement			:	[]// no layout info
-	,ThisExpression			:	[]// no layout info
-	,Identifier				:	[]// no layout info
-	,Literal				:	[]// no layout info
-	,Layout					:	[]// no layout info
 	,DebuggerStatement		:	[]// implemented in layout.js
 	,ContinueStatement		:	[]// implemented in layout.js
 	,BreakStatement			:	[]// implemented in layout.js
@@ -46,6 +38,11 @@ var layoutDescription = {
 	,VariableDeclarator		:	[]// implemented in layout.js
 	,NewExpression			:	[]// implemented in layout.js
 	,ArrowExpression		:	[]// not yet implemented
+	,EmptyStatement			:	[]// no layout data
+	,ThisExpression			:	[]// no layout data
+	,Identifier				:	[]// no layout data
+	,Literal				:	[]// no layout data
+	,Layout					:	[]// no layout data
 	*/
 }
 

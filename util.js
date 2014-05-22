@@ -21,7 +21,6 @@ function eatString(str, value, pos){
 	if(str.substring(pos,pos+value.length) === value)
 		return pos+value.length;
 	else
-		debugger;
 		throw new Error('Could not eat '+value)
 }
 

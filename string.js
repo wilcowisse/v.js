@@ -11,11 +11,11 @@ function flattenLayout(str){
 }
 
 var stringFunctions = {
-	 UnaryExpression		:	function(node){return node.operator;}
-	,BinaryExpression		:	function(node){return node.operator;}
-	,AssignmentExpression	:	function(node){return node.operator;}
-	,UpdateExpression		:	function(node){return node.operator;}
-	,LogicalExpression		:	function(node){return node.operator;}
+	 UnaryOperator			:	function(node){return node.value;}
+	,BinaryOperator			:	function(node){return node.value;}
+	,AssignmentOperator		:	function(node){return node.value;}
+	,UpdateOperator			:	function(node){return node.value;}
+	,LogicalOperator		:	function(node){return node.value;}
 	,Identifier				:	function(node){return node.name;}
 	,Literal				:	function(node){return node.value;}
 	,Layout					:	function(node){return flattenLayout(node.value);}

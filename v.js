@@ -1,10 +1,9 @@
 var esprima = require('esprima');
-var traverse = require("ast-traverse");
+var traverse = require('ast-traverse');
 var fs = require('fs');
 var refactor = require('./refactor.js');
-var measure = require('./measure.js');
-
-var vutil = require("./util.js");
+var vutil = require('./util.js');
+var measurementBuilder = require('./measurementbuilder.js');
 
 function getFileList(dir){
 	try{
@@ -18,13 +17,14 @@ function getFileList(dir){
 			});
 	}
 	catch(error){
-		console.log("ERROR:" + error.message);
+		console.log("FILE SYSTEM ERROR:" + error.message);
 	}
 	return fileList;
 }
 
 
-fileList=getFileList('./input');
+var fileList=getFileList('./input');
+var measurement = measurementBuilder.build();
 
 fileList.forEach(function(filename){
 	try{
@@ -32,16 +32,24 @@ fileList.forEach(function(filename){
 		var ast=esprima.parse(raw,{range:true,loc:true});
 	}
 	catch(error){
-		console.log(error.message);
+		console.log("PARSE ERROR: "+error.message);
 	}
 	
-	refactor(raw,ast);
-	//measure(ast);
-	vutil.printAst(ast, false, true);
+	refactor(raw,ast,false);
+	//vutil.printAst(ast, false, true);
+	
+	measurement.runAst(ast);
+	
+	var labels = measurement.getLabels(100);
+	var values = measurement.getResults();
+	if(labels.length!==values.length) debugger;
+	
+	for(var i=0;i<labels.length;i++){
+		var value = values[i] === undefined ? NaN : values[i];
+		console.log(labels[i]+value);
+	}
 	
 });
-
-
 
 
 
