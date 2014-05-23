@@ -18,6 +18,7 @@ function BracketExpression(value_obj, range_arr){
 	this.value=value_obj;
 }
 
+
 function refactorAst(raw, ast_obj, layout_bool) {
 	traverse(ast_obj, {
 		pre: function(node, parent, prop, idx) {
@@ -66,7 +67,6 @@ function rewriteOperator(raw,node){
 		}
 		else{
 		
-			if(node.left==undefined) debugger;
 			var loc = node.left.range[1];
 			loc=vutil.eatWhiteSpace(raw,loc);
 			var loc2=0;
@@ -91,15 +91,17 @@ function rewriteVariableKind(node){
 	}
 }
 
+var num = 0;
+
 function rewriteNestedExpressions(raw,node,parent,prop,idx){
 	if(vutil.isExpression(node)){
 		var n=node,p=parent,c=prop,t=parent.type;
 		var isNestedInSyntax = 
 			   t === 'IfStatement' 			&& c==='test' 
-			|| t === 'CallExpression'		&& c==='arguments'	&& p.arguments.length===1
-			|| t === 'FunctionExpression'	&& c==='params'		&& p.params.length===1
-			|| t === 'FunctionDeclaration'	&& c==='params'		&& p.params.length===1
-			|| t === 'NewExpression'		&& c==='arguments'	&& p.arguments.length===1
+			|| t === 'CallExpression'		&& c==='arguments'  	&& p.arguments.length===1
+			|| t === 'FunctionExpression'	&& c==='params'	    	&& p.params.length===1
+			|| t === 'FunctionDeclaration'	&& c==='params'	    	&& p.params.length===1
+			|| t === 'NewExpression'		&& c==='arguments'  	&& p.arguments.length===1
 			|| t === 'WithStatement'		&& c==='object'
 			|| t === 'WhileStatement'		&& c==='test'
 			|| t === 'SwitchStatement'		&& c==='discriminant'

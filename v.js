@@ -22,7 +22,6 @@ function getFileList(dir){
 	return fileList;
 }
 
-
 var fileList=getFileList('./input');
 var measurement = measurementBuilder.build();
 
@@ -35,18 +34,22 @@ fileList.forEach(function(filename){
 		console.log("PARSE ERROR: "+error.message);
 	}
 	
-	refactor(raw,ast,false);
+	refactor(raw,ast,true);
 	//vutil.printAst(ast, false, true);
 	
 	measurement.runAst(ast);
 	
 	var labels = measurement.getLabels(100);
 	var values = measurement.getResults();
+	
+	var stCount = values[labels.indexOf('Statement.count')];
+	var expCount = values[labels.indexOf('Statement.count')];
+	
 	if(labels.length!==values.length) debugger;
 	
 	for(var i=0;i<labels.length;i++){
-		var value = values[i] === undefined ? NaN : values[i];
-		console.log(labels[i]+value);
+		var value = values[i] === undefined ? 0 : values[i];
+		console.log(labels[i]+value.toFixed(2));
 	}
 	
 });

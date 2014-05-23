@@ -41,8 +41,8 @@ function init(){
 	})();
 	
 	layoutFunctions['UpdateExpression'] = (function(){
-		var f1 = createCanonicalLayoutFunction(['/operator/val','/argument']);
-		var f2 = createCanonicalLayoutFunction(['/argument','/operator/val']);
+		var f1 = createCanonicalLayoutFunction(['/operator','/argument']);
+		var f2 = createCanonicalLayoutFunction(['/argument','/operator']);
 		return function(raw, node){
 			if(node.prefix)
 				f1(raw,node);
@@ -99,11 +99,19 @@ function applyLayoutFunctions(raw,node_obj) {
 }
 
 function pointerToNum(raw, node, layoutPointer, startIndex){
+    /** deprecated
 	if(layoutPointer[0] === '/' && vutil.endsWith(layoutPointer,'/val')){ // value of child
 		return vutil.eatString(raw,String(node[layoutPointer.substring(1,layoutPointer.length-4)]),startIndex);
-	}
-	else if(layoutPointer[0] === '/'){ // child
-		var child = node[layoutPointer.substring(1,layoutPointer.length)];
+	}*/
+	if(layoutPointer[0] === '/'){ // child
+	    
+	    var child = node[layoutPointer.substring(1,layoutPointer.length)];
+	    
+	    if(child==null){
+	        debugger;
+	        throw new Error('Child is null');
+	    }
+		
 		if(Array.isArray(child)){
 			return child[child.length-1].range[1];
 		}

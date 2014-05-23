@@ -53,12 +53,13 @@ function eatWhiteSpace(str,pos){
 function eatWhiteSpaceRev(str,pos){
 	for(pos;pos>=0;){
 		if(['\n', '\t', '\u2028', '\u2029'].indexOf(str[pos]) !== -1) {
-			while(['\n', '\r', '\u2028', '\u2029'].indexOf(str[pos--]) === -1) ;
+			while(['\n', '\r', '\u2028', '\u2029'].indexOf(str[--pos]) !== -1) ;
 			var lineStart = str.lastIndexOf('\n',pos);
 			if(lineStart === -1)
-				lineStart = Math.max(str.lastIndexOf('\r',pos),str.lastIndexOf('\u2028',pos),str.lastIndexOf('\u2029',pos));
+				lineStart = Math.max(str.lastIndexOf('\r',pos),str.lastIndexOf('\u2028',pos),str.lastIndexOf('\u2029',pos),0);
+				
 			if(str.substring(lineStart,pos).indexOf('//') !== -1)
-				pos = str.lastIndexOf('//')-1;
+				pos = str.lastIndexOf('//',pos)-1;
 		}
 		else if(str[pos-1] === '*' && str[pos] === '/'){ // skip block comment
 			pos = str.lastIndexOf('/*',pos)-1;

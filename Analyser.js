@@ -1,18 +1,26 @@
+var ResultList  = require('./ResultList.js');
+
 /*** Analyser ***/
-function Analyser(name, acceptor, meter,pointer) {
+function Analyser(name, acceptor, meter) {
 	this.name=name;
 	this.accept=acceptor;
 	this.meter=meter;
-	this.pointer=pointer;
+	this.resultList=new ResultList(meter.size);
 }
 Analyser.prototype.run = function(node){
 	if(this.accept(node)) {
-		this.meter.run(node,this.pointer);
+		this.meter.run(node,this.resultList);
 	}
+}
+Analyser.prototype.empty = function(){
+    this.resultList.empty();
+}
+Analyser.prototype.getResults = function(){
+    return this.resultList.getResults();
 }
 Analyser.prototype.getLabels = function(indent_num){
 	var result = this.meter.xLabels.map(function(meterLabel){
-		var label =  this.name + '.' + meterLabel;
+		var label =  this.name.replace(/\s/g,'_') + '.' + meterLabel;
 		var indentation = ' ';
 		if(label.length < indent_num)
 		    indentation = new Array(indent_num - label.length+1).join(' ');
@@ -20,7 +28,6 @@ Analyser.prototype.getLabels = function(indent_num){
 	},this);
 	return result;
 }
-
 if (typeof module !== "undefined" && typeof module.exports !== "undefined") {
     module.exports = Analyser;
 }

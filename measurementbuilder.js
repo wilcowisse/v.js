@@ -8,6 +8,9 @@ var statements                  = lf.createStatementList().build();
 var statementsAndNull           = lf.createStatementList().add('NullNode').build();
 var identifiersAndNull          = lf.createList().add('Identifier').add('NullNode').build();
 
+var expressionsAsString         = expressions.join();
+var statementsAsString          = statements.join();
+
 var distributionMeasurements = {
     
 
@@ -16,10 +19,17 @@ var distributionMeasurements = {
 function build(){
     var measurement = new Measurement();
 	
-	measurement.addAnalysis('Distribution of UnaryExpression/argument','UnaryExpression.argument/*', new meters.DistributionMeter('type',expressions));
+	measurement.addAnalysis('Expressions',expressionsAsString, new meters.DistributionMeter('type',expressions));
+	measurement.addAnalysis('Statements',statementsAsString, new meters.DistributionMeter('type',statements));
+    measurement.addAnalysis('Expression',expressionsAsString, new meters.CountMeter());
+    measurement.addAnalysis('Statement',statementsAsString, new meters.CountMeter());
+	//measurement.addAnalysis('Return.argument', 'ReturnStatement.argument/*', new meters.DistributionMeter('type',expressionsAndNull));
+	//measurement.addAnalysis('For.test', 'ForStatement.test/*', new meters.DistributionMeter('type',expressionsAndNull));
+	//measurement.addAnalysis('Call.callee', 'CallExpression.callee/*', new meters.DistributionMeter('type',expressionsAndNull));
+	 
+	//measurement.addAnalysis('Distribution of UnaryExpression/argument','UnaryExpression.argument/*', new meters.DistributionMeter('type',expressions));
 	//measurement.addAnalysis('Testanalysis','UnaryExpression.argument/UnaryExpression.argument/*',new meters.TestMeter());
-	//measurement.addAnalysis('TestF2','WhileStatement', new meters.TestMeter());
-	//measurement.addAnalysis('Testanalysis2','BinaryExpression',new TestMeter());
+
     return measurement;
 }
 
