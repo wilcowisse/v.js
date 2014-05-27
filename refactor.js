@@ -18,13 +18,16 @@ function BracketExpression(value_obj, range_arr){
 	this.value=value_obj;
 }
 
-
+var counter =0;
 function refactorAst(raw, ast_obj, layout_bool) {
 	traverse(ast_obj, {
 		pre: function(node, parent, prop, idx) {
+		    // order is important
+		    rewriteProperty(node);
 			rewriteNestedExpressions(raw,node,parent,prop,idx);
+			
 		},
-		post: function(node){
+		post: function(node) {
 			// order is important
 			rewriteTryStatement(node);
 			rewriteNull(raw,node);
@@ -40,11 +43,26 @@ function refactorAst(raw, ast_obj, layout_bool) {
 			//console.log('**%s**',node.type);
 			node.$parent=parent;
 			node.$prop=prop;
+			
 			if(layout_bool)
 				layout(raw,node)
 		}
 	});
 	
+}
+
+function rewriteProperty(node){
+    if(node.type === 'Property'){
+        if(node.kind === 'get'){
+            node.type = 'GetProperty';
+            node.value.type='GetSetFunctionExpression';
+            
+        }
+        else if(node.kind === 'set'){
+            node.type = 'SetProperty';
+            node.value.type='GetSetFunctionExpression';
+        }
+    }
 }
 
 function rewriteOperator(raw,node){
@@ -257,9 +275,8 @@ function rewriteEmptyArrays(raw,node) {
 	}
 	else if(node.type==='NewExpression' && node.arguments.length==0){
 		// two notations: 'new a' and 'new a()'
-		var isBracketNotation = raw[node.range[1]-1]===')';
 		var loc = node.callee.range[1];
-		if(isBracketNotation){//'new a()'
+		if(vutil.newExpHasBracketNotation(node)){//'new a()'
 			loc = vutil.eatWhiteSpace(raw,loc);
 			loc = vutil.eatString(raw,'(',loc);
 		}

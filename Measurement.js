@@ -2,6 +2,7 @@
 var Analyser = require('./Analyser.js');
 var accepts = require('./acceptor.js');
 var traverse = require('ast-traverse');
+var fs = require('fs');
 
 /*** Measurement ***/
 function Measurement(){
@@ -35,6 +36,22 @@ Measurement.prototype.getResults = function(){
 	return [].concat.apply([],this.analysers.map(function(analyser){
 	    return analyser.getResults();}
 	));
+}
+Measurement.prototype.flush = function(filePath){
+    var labels = this.getLabels(0);
+    var values = this.getResults();
+
+    if(labels.length!==values.length) 
+        throw new Error('Number of labels and values are not equal');
+    
+    var stream = fs.createWriteStream(filePath);
+    for(var i=0;i<labels.length;i++){
+        var value = values[i] === undefined ? 0 : values[i];
+        stream.write(labels[i] + ' ' + value+'\n');
+    }
+    stream.end();
+    this.empty();
+
 }
 
 if (typeof module !== "undefined" && typeof module.exports !== "undefined") {

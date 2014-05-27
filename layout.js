@@ -7,8 +7,7 @@ function Layout(str,start,end){
 	this.range=[start,end];
 }
 
-var layoutFunctions = {
-}
+var layoutFunctions = {}
 
 init();
 function init(){
@@ -78,8 +77,7 @@ function init(){
 		var f1 = createCanonicalLayoutFunction(['new','/callee','(','/arguments',')','*arguments/,']);
 		var f2 = createCanonicalLayoutFunction(['new','/callee']);
 		return function(raw, node){
-			var isBracketNotation = raw[node.range[1]-1]===')';
-			if(isBracketNotation)
+			if(vutil.newExpHasBracketNotation(node))
 				f1(raw,node);
 			else
 				f2(raw,node);

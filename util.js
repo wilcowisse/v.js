@@ -20,22 +20,26 @@ function isWhiteSpaceOrSymbol(str, symbol) {
 function eatString(str, value, pos){
 	if(str.substring(pos,pos+value.length) === value)
 		return pos+value.length;
-	else
+	else{
+	    debugger;
 		throw new Error('Could not eat '+value)
+	}
 }
 
 function eatStringRev(str,value,pos){
 	if(str.substring(pos-value.length+1,pos+1) === value)
 		return pos-value.length;
-	else
+	else{
+	    debugger;
 		throw new Error('Could not eat '+value);
+	}
 	
 }
 
 function eatWhiteSpace(str,pos){
 	for(pos;pos<str.length;){
 		if(str[pos] === '/' && str[pos+1] === '/') { // skip line comment
-			while(['\n','\r', '\u2028', '\u2029'].indexOf(str[pos++]) === -1) ;
+			while(['\n','\r', '\u2028', '\u2029'].indexOf(str[pos++]) === -1 && pos<str.length) ;
 		}
 		else if(str[pos] === '/' && str[pos+1] === '*'){ // skip block comment
 			pos = str.indexOf('*/',pos)+2;
@@ -48,6 +52,10 @@ function eatWhiteSpace(str,pos){
 		}
 	}
 	return pos;
+}
+
+function newExpHasBracketNotation(node){
+    return node.type === 'NewExpression' && node.range[1] > node.callee.range[1]+1;
 }
 
 function eatWhiteSpaceRev(str,pos){
@@ -122,8 +130,8 @@ function printNodeTrace(node_obj){
 function isExpression(node_obj){
 	return ["ThisExpression", "ArrayExpression", "ObjectExpression", "FunctionExpression", "ArrowFunctionExpression"
 		,"SequenceExpression", "UnaryExpression", "BinaryExpression", "AssignmentExpression", "UpdateExpression", "LogicalExpression"
-		,"ConditionalExpression", "NewExpression", "CallExpression", "YieldExpression", "ComprehensionExpression", "GeneratorExpression","GraphExpression", 
-		"LetExpression","Identifier", "Literal","BracketExpression"].indexOf(node_obj.type) !== -1;
+		,"ConditionalExpression", "NewExpression", "CallExpression", "YieldExpression", "ComprehensionExpression", "GeneratorExpression","GraphExpression",
+		"LetExpression","Identifier", "Literal","BracketExpression","MemberExpression", "CMemberExpression","GetSetFunctionExpression"].indexOf(node_obj.type) !== -1;
 }
 
 function isStatement(node_obj){
@@ -145,3 +153,4 @@ exports.printNodeTrace = printNodeTrace;
 exports.isIndentation = isIndentation;
 exports.isWhiteSpace = isWhiteSpace;
 exports.printAst = printAst;
+exports.newExpHasBracketNotation = newExpHasBracketNotation;

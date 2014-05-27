@@ -1,58 +1,129 @@
 var esprima = require('esprima');
-var traverse = require('ast-traverse');
+
 var fs = require('fs');
+var path = require('path');
 var refactor = require('./refactor.js');
 var vutil = require('./util.js');
+var futil = require('./fsutil.js');
 var measurementBuilder = require('./measurementbuilder.js');
 
-function getFileList(dir){
-	try{
-		var fileList=fs.readdirSync(dir)
-			.filter(function(value){
-				var suffix=".js";
-				return value.indexOf(suffix, value.length - suffix.length) !== -1;
-			})
-			.map(function(value){
-				return dir.lastIndexOf('/')==dir.length-1 ? dir+value : dir+"/"+value;
-			});
-	}
-	catch(error){
-		console.log("FILE SYSTEM ERROR:" + error.message);
-	}
-	return fileList;
-}
 
-var fileList=getFileList('./input');
+/****/
+var inputDir  = 'obj';
+var outputDir = 'res';
+var option = 'global'; // global/profilebased/instancebased
+/****/
+
+var parseErrors = [];
+var solvedParseErrors = [];
+var refactorErrors = [];
+var measureErrors = [];
+
 var measurement = measurementBuilder.build();
+futil.createDir(outputDir);
 
-fileList.forEach(function(filename){
-	try{
-		var raw = fs.readFileSync(filename,'utf-8');
-		var ast=esprima.parse(raw,{range:true,loc:true});
-	}
-	catch(error){
-		console.log("PARSE ERROR: "+error.message);
-	}
-	
-	refactor(raw,ast,true);
-	//vutil.printAst(ast, false, true);
-	
-	measurement.runAst(ast);
-	
-	var labels = measurement.getLabels(100);
-	var values = measurement.getResults();
-	
-	var stCount = values[labels.indexOf('Statement.count')];
-	var expCount = values[labels.indexOf('Statement.count')];
-	
-	if(labels.length!==values.length) debugger;
-	
-	for(var i=0;i<labels.length;i++){
-		var value = values[i] === undefined ? 0 : values[i];
-		console.log(labels[i]+value.toFixed(2));
-	}
-	
+var authors = futil.getDirList(inputDir);
+authors.forEach(function(author){
+    console.log('Analyzing '+author);
+    if(option =='instancebased')
+        futil.createDir(path.join(outputDir,author));
+    
+    var repos = futil.getDirList(path.join(inputDir,author));
+    repos.forEach(function(repo){
+        console.log(' '+repo);
+        var files = futil.getJSFileList(path.join(inputDir,author,repo));
+        files.forEach(function(file){
+            console.log('  '+file);
+            var success = true;
+            //success = false;
+            try{
+                var filename = path.join(inputDir,author,repo,file);
+                var raw = fs.readFileSync(filename,'utf-8');
+                raw = raw.replace(/^#!.*\n/,'');
+            }
+            catch(error){
+                console.log("FILE SYSTEM ERROR (f):" + error.message);
+                success = false;
+            }
+            try{
+                if(success){
+                    var ast=esprima.parse(raw,{range:true});
+                }
+            }
+            catch(e){
+                var solved = false;
+                
+                var error = e;
+                for(var i=0;i<10;i++){
+                    var regexpMatch = error.message.match(/^.*Line (\d+):/);
+                    if(regexpMatch != null && Number(regexpMatch[1]) != NaN){
+                        var lineNumber =  Number(regexpMatch[1]);
+                        raw = raw.split("\n").slice(lineNumber).join("\n");
+                    }
+                    else{
+                        break;
+                    }
+                    
+                    try{
+                        ast=esprima.parse(raw,{range:true});
+                        solved=true;
+                        break;
+                    }
+                    catch(e){
+                        error = e;
+                    }
+                    
+                }
+                
+                if(solved){
+                    solvedParseErrors.push(file);
+                }
+                else{
+                    parseErrors.push(file);
+                    success=false;
+                }
+            }
+            try{
+                if(success){
+                    refactor(raw,ast,true);
+                }
+            }
+            catch(error){
+                console.log('Refactor error: ' + file); 
+                refactorErrors.push(file);
+                success=false;
+            }
+            try{
+                if(success){
+                    measurement.runAst(ast);
+                }    
+            }
+            catch(error){
+                console.log('Refactor error: ' + file);
+                refactorErrors.push(file);
+                success=false;
+            }
+        });
+        
+        if(option === 'instancebased'){
+            measurement.flush(path.join(outputDir,author,repo+'.txt'));
+        }
+    });
+    
+    if(option === 'profilebased'){
+        measurement.flush(path.join(outputDir,author+'.txt'));
+    }
+
 });
 
+if(option === 'global'){
+    measurement.flush(path.join(outputDir,'global.txt'));
+}
 
+console.log('\n');
+console.log('Parse errors: ' + parseErrors + ' '+ parseErrors.length + '\n');
+console.log('Refactor errors: ' + refactorErrors + ' '+ refactorErrors.length + '\n');
+console.log('Measure errors: ' + measureErrors + ' '+ measureErrors.length + '\n');
+console.log('Solved parse errors: ' + solvedParseErrors + ' '+ solvedParseErrors.length + '\n');
+            
 

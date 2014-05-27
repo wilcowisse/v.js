@@ -20,9 +20,10 @@ function build(){
     var measurement = new Measurement();
 	
 	measurement.addAnalysis('Expressions',expressionsAsString, new meters.DistributionMeter('type',expressions));
-	measurement.addAnalysis('Statements',statementsAsString, new meters.DistributionMeter('type',statements));
-    measurement.addAnalysis('Expression',expressionsAsString, new meters.CountMeter());
-    measurement.addAnalysis('Statement',statementsAsString, new meters.CountMeter());
+	//measurement.addAnalysis('Program','Program.body/ExpressionStatement.expression/', new meters.DistributionMeter('type',statements));
+	//measurement.addAnalysis('Statements',statementsAsString, new meters.DistributionMeter('type',statements));
+    //measurement.addAnalysis('Expression',expressionsAsString, new meters.CountMeter());
+    //measurement.addAnalysis('Statement',statementsAsString, new meters.CountMeter());
 	//measurement.addAnalysis('Return.argument', 'ReturnStatement.argument/*', new meters.DistributionMeter('type',expressionsAndNull));
 	//measurement.addAnalysis('For.test', 'ForStatement.test/*', new meters.DistributionMeter('type',expressionsAndNull));
 	//measurement.addAnalysis('Call.callee', 'CallExpression.callee/*', new meters.DistributionMeter('type',expressionsAndNull));
