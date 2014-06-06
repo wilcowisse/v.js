@@ -2,18 +2,26 @@ var traverse = require("ast-traverse");
 var stringFunctions = require("./string.js");
 
 function isIndentation(str){
-	var pattern = /[ \t]/m;
+	var pattern = /[ \t]/;
 	return pattern.test(str);
 }
 
 function isWhiteSpace(str){
-	var pattern = /^(\s|\/\*[^]*\*\/|\/\/.*)*$/m;
+	var pattern = /^(\s|\/\*[^]*\*\/|\/\/.*)*$/;
 	return pattern.test(str);
+}
+
+function containsBlockComment(str){
+	return /\/\*[^]*\*\//.test(str);
+}
+
+function containsLineComment(str){
+	return str.indexOf('//') !== -1;
 }
 
 function isWhiteSpaceOrSymbol(str, symbol) {
 	var pattern_str = '^(\\s|\/\*[^]*\\*\/|\/\/.*|'+symbol+')*$'
-	var pattern = new RegExp(pattern_str,'m');
+	var pattern = new RegExp(pattern_str);
 	return pattern.test(str);
 }
 
@@ -154,3 +162,5 @@ exports.isIndentation = isIndentation;
 exports.isWhiteSpace = isWhiteSpace;
 exports.printAst = printAst;
 exports.newExpHasBracketNotation = newExpHasBracketNotation;
+exports.containsBlockComment = containsBlockComment;
+exports.containsLineComment = containsLineComment;

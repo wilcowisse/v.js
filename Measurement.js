@@ -1,5 +1,7 @@
 
 var Analyser = require('./Analyser.js');
+var CombinedAnalyser = require('./CombinedAnalyser.js');
+var UnionAnalyser = require('./UnionAnalyser.js');
 var accepts = require('./acceptor.js');
 var traverse = require('ast-traverse');
 var fs = require('fs');
@@ -10,6 +12,16 @@ function Measurement(){
 }
 Measurement.prototype.addAnalysis = function(description, acceptorUrl, meter) {
 	var analyser = new Analyser(description, accepts(acceptorUrl),meter);
+	this.analysers.push(analyser);
+	return this;
+}
+Measurement.prototype.addUnionAnalysis = function(description, acceptorUrl, meters, meterNames) {
+	var analyser = new UnionAnalyser(description, accepts(acceptorUrl), meters, meterNames);
+	this.analysers.push(analyser);
+	return this;
+}
+Measurement.prototype.addCombinedAnalysis = function(description, acceptorUrl, meters, meterNames) {
+	var analyser = new CombinedAnalyser(description, accepts(acceptorUrl), meters, meterNames);
 	this.analysers.push(analyser);
 	return this;
 }
@@ -37,17 +49,24 @@ Measurement.prototype.getResults = function(){
 	    return analyser.getResults();}
 	));
 }
+Measurement.prototype.getAbsoluteResults = function(){
+	return [].concat.apply([],this.analysers.map(function(analyser){
+	    return analyser.getAbsoluteResults();}
+	));
+}
 Measurement.prototype.flush = function(filePath){
-    var labels = this.getLabels(0);
+    var labels = this.getLabels(80);
     var values = this.getResults();
-
-    if(labels.length!==values.length) 
+    var absoluteValues = this.getAbsoluteResults();
+    
+    if(labels.length!==values.length){
+        debugger;
         throw new Error('Number of labels and values are not equal');
+    }
     
     var stream = fs.createWriteStream(filePath);
     for(var i=0;i<labels.length;i++){
-        var value = values[i] === undefined ? 0 : values[i];
-        stream.write(labels[i] + ' ' + value+'\n');
+        stream.write(labels[i] + ' ' + values[i]+' '+absoluteValues[i]+'\n');
     }
     stream.end();
     this.empty();

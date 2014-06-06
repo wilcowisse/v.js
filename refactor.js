@@ -185,9 +185,32 @@ function rewriteMemberExp(node) {
 
 // substitute objects for null
 function rewriteNull(raw,node) {
-	if(node.type === 'VariableDeclarator' && node.init===null){
+	if(node.type === 'VariableDeclarator' && node.init===null) {
 		var loc = node.id.range[1];
 		node.init = new NullNode(loc);
+	}
+	else if(node.type === 'ArrayExpression'){
+	    for(var i=0;i<node.elements.length;i++){
+	        if(node.elements[i] == null){
+	            if(i===0){
+	                var loc = node.range[0]+1;
+	                node.elements[i]=new NullNode(loc);
+	            }
+	            else{
+	                var loc = node.elements[i-1].range[1];
+	                loc = vutil.eatWhiteSpace(raw,loc);
+	                loc = vutil.eatString(raw,',',loc);
+	                node.elements[i]=new NullNode(loc);
+	            }
+	        }
+	    }
+	    if(node.elements.length>0){ // corner case: [1,2,]
+	        var loc = node.elements[node.elements.length-1].range[1];
+	        loc = vutil.eatWhiteSpace(raw,loc);
+	        if(raw[loc] === ','){
+	            node.elements[node.elements.length] = new NullNode(loc+1);
+	        }
+	    }
 	}
 	else if(node.type === 'FunctionExpression' && node.id===null){
 		var loc = node.range[0]+'function'.length;

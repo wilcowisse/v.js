@@ -2,7 +2,13 @@ var vutil = require("./util.js");
 var layoutDescription_obj = require("./layoutdescription.js");
 
 function Layout(str,start,end){
-	this.type="Layout";
+    if(vutil.containsLineComment(str))
+        this.type='LineComment';
+    else if(vutil.containsBlockComment(str))
+        this.type='BlockComment';
+    else
+        this.type='Layout';
+
 	this.value=str;
 	this.range=[start,end];
 }
@@ -15,7 +21,7 @@ function init(){
    		layoutFunctions[nodeType] = createCanonicalLayoutFunction(layoutDescription_obj[nodeType]);
 	});
 	
-	['ExpressionStatement','DebuggerStatement','ContinueStatement','BreakStatement'].forEach(function(nodeType){
+	['ExpressionStatement','DebuggerStatement','ContinueStatement','BreakStatement','LabeledStatement'].forEach(function(nodeType){
 		layoutFunctions[nodeType] = layoutAfterStatement;
 	});
 	
@@ -53,23 +59,20 @@ function init(){
 	layoutFunctions['VariableDeclarator'] = (function(){
 		var f = createCanonicalLayoutFunction(['/id','=','/init']);
 		return function(raw, node){
-			if(node.init.type !== 'NullNode')
+			if(node.init.type !== 'NullNode'){
 				f(raw,node);
-			else{
-				node.l0=null;
-				node.l1=null;
 			}
 		}
 	})();
 	
 	layoutFunctions['SwitchCase'] = (function(){
 		var f1 = createCanonicalLayoutFunction(['case','/test',':','/consequent']);
-		var f2 = createCanonicalLayoutFunction(['default',':','/consequent']);
+		//var f2 = createCanonicalLayoutFunction(['default',':','/consequent']);
 		return function(raw, node){
 			if(node.test.type!=='NullNode')
 				f1(raw,node);
-			else
-				f2(raw,node);
+			//else
+				//f2(raw,node);
 		}
 	})();
 	
@@ -102,9 +105,7 @@ function pointerToNum(raw, node, layoutPointer, startIndex){
 		return vutil.eatString(raw,String(node[layoutPointer.substring(1,layoutPointer.length-4)]),startIndex);
 	}*/
 	if(layoutPointer[0] === '/'){ // child
-	    
 	    var child = node[layoutPointer.substring(1,layoutPointer.length)];
-	    
 	    if(child==null){
 	        debugger;
 	        throw new Error('Child is null');
@@ -155,7 +156,7 @@ function createCanonicalLayoutFunction(nodeDescription_arr) {
 				node['l'+propertyInd++] = new Layout(raw.substring(pointerNum,pos),pointerNum,pos);
 			}
 		}
-
+    
 	}
 
 }
@@ -163,12 +164,14 @@ function createCanonicalLayoutFunction(nodeDescription_arr) {
 function createLayoutNodeArray(raw,node,prop,symbol,action){
 	var childList = node[prop];
 	
-	if(!Array.isArray(childList)) debugger;
-	
-	console.assert(Array.isArray(childList));
+	if(!Array.isArray(childList)){
+	    debugger;
+	    throw new Error('childlist is not an array');
+	}
 	
 	var layoutList = [];
 	for(var i=0; i<childList.length-1; i++) {
+	    if(childList[i]==null)debugger;
 		var thisNodeEnd=childList[i].range[1];
 		var nextNodeStart = childList[i+1].range[0];
 		
@@ -193,7 +196,11 @@ function createLayoutNodeArray(raw,node,prop,symbol,action){
 			var start_num = thisNodeEnd;
 			var end_num = nextNodeStart;
 			var layout_str = raw.substring(start_num,end_num);
-			console.assert(vutil.isWhiteSpaceOrSymbol(layout_str, symbol));
+			if(!vutil.isWhiteSpace(layout_str)){
+			    debugger;
+			    throw new Error('Layout in node array contains corrupted chars');
+			}
+			
 			layoutList.push(new Layout(layout_str,start_num,end_num));
 		}
 	}
