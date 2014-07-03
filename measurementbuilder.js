@@ -5,13 +5,13 @@ var Measurement = require('./Measurement.js');
 
 function build(){
     var measurement = new Measurement();
-    //addDistributionMeters(measurement);
+    addDistributionMeters(measurement);
     //addStringLengthMeters(measurement);
     //addListLengthMeters(measurement);
     //addDescendantCountMeters(measurement);
     //addStringPatternMeters(measurement);
-    addLayoutMeters(measurement);
-    addCommentMeters(measurement);
+    //addLayoutMeters(measurement);
+    //addCommentMeters(measurement);
     return measurement;
 }
 
@@ -67,7 +67,6 @@ function addStringPatternMeters(measurement){
 
 function addCommentMeters(measurement){
     // layout with comments: number of tab,enter,space before and after comment, comment type, comment length, parent
-    //measurement.addAnalysis('Parent of BlockComment'
     
     // parent distributions
     var expressionsAndStatements = lf.createExpressionList()
@@ -277,13 +276,13 @@ function addDistributionMeters(measurement){
                                         .add('Identifier','NullNode')
                                         .build();
     var selectedExpressions         = lf.createExpressionList()
-                                        .remove('ArrowFunctionExpression','GetSetFunctionExpression')
+                                        .remove('ArrowFunctionExpression','GetSetFunctionExpression') // remove because they are too infrequent
                                         .build();
     var selectedExpressionsAndNull  = lf.createCustomList(selectedExpressions)
                                         .add('NullNode')
                                         .build();
     var selectedStatements          = lf.createStatementList()
-                                        .remove('ForOfStatement','LetStatement')
+                                        .remove('ForOfStatement','LetStatement','WithStatement','DebuggerStatement','LabeledStatement') // remove because they are too infrequent
                                         .build();
     var selectedStatementsAndNull   = lf.createCustomList(selectedStatements)
                                         .add('NullNode')
@@ -293,7 +292,8 @@ function addDistributionMeters(measurement){
 	measurement.addAnalysis('Expressions/*',expressions.join(), new meters.DistributionMeter('type',selectedExpressions));
 	measurement.addAnalysis('Statements/*',statements.join(), new meters.DistributionMeter('type',selectedStatements));
 	
-	var slots = { //bi-nodes
+	//bi-nodes
+	var slots = { 
 	    'ExpressionStatement.expression/*'          :lf.createCustomList(selectedExpressions)
 	    ,'IfStatement.test/*'                       :lf.createCustomList(selectedExpressions)
 	    ,'IfStatement.consequent/*'                 :lf.createCustomList(selectedStatementsAndNull)
@@ -306,7 +306,7 @@ function addDistributionMeters(measurement){
 	    ,'ForStatement.test/*'                      :lf.createCustomList(selectedExpressionsAndNull)
 	    ,'ForStatement.update/*'                    :lf.createCustomList(selectedExpressionsAndNull )
 	    ,'ForStatement.body/*'                      :lf.createCustomList(selectedStatements)
-	    ,'ForInStatement.left/*'                    :lf.createCustomList(selectedExpressions).add('VariableDeclaration')//combine with for?
+	    ,'ForInStatement.left/*'                    :lf.createCustomList(selectedExpressions).add('VariableDeclaration')
 	    ,'ForInStatement.right/*'                   :lf.createCustomList(selectedExpressions)
 	        //(functiondeclaration)
 	    ,'VariableDeclarator.init/*'                :lf.createCustomList(selectedExpressionsAndNull)
@@ -344,6 +344,7 @@ function addDistributionMeters(measurement){
 	};
 	//todo:blockstatements
 	
+	
 	var remove = require('./removeslots.js');
 	for(var slot in slots) {
         if (slots.hasOwnProperty(slot)) {
@@ -357,15 +358,14 @@ function addDistributionMeters(measurement){
     
     ///*
     var biNodeKeys = Object.keys(slots);
-    var remove2 = require('./removeslots2.js');
     var triNodes = require('./trinodes.js');
+    var remove2 = require('./removeslots2.js');
     triNodes.forEach(function(triNode){
         var grandParent = triNode.split('/')[0];
         var parent = triNode.split('/')[1];
         biNodeKeys.filter(function(biNodeKey){
             return biNodeKey.indexOf(parent)===0;
-        })
-        .forEach(function(biNodeKey){
+        }).forEach(function(biNodeKey){
             var slot = grandParent+'/'+biNodeKey;
             if(remove2.hasOwnProperty(slot))
                 slots[slot] = slots[biNodeKey].remove(remove2[slot]);

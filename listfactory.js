@@ -3,7 +3,6 @@ function NodeFactory(categoriesFunc){
 	this.categories = categoriesFunc();
 }
 NodeFactory.prototype.add = function(){
-    
     var args = arguments;
     if(arguments.length===1 && Array.isArray(arguments[0]))
         args=arguments[1];
@@ -51,7 +50,7 @@ NodeFactory.prototype.group = function(){
 }
 
 NodeFactory.prototype.build = function(){
-	return this.categories;
+	return this.categories.slice(0);
 }
 
 function getExpressionList(){

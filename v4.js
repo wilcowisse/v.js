@@ -1,5 +1,5 @@
 /**
-SELECT FEATURES
+SELECT FEATURES (REMOVE FEATURES THAT ARE RARE IN THE WHOLE DATASET; EXPAND THOSE THAT ARE FREQUENT)
 **/
 
 var esprima = require('esprima');
@@ -13,7 +13,7 @@ var measurementBuilder = require('./measurementbuilder.js');
 
 
 /****/
-var inputDir  = 'objects';
+var inputDir  = 'cleaned_export200grouped';
 var outputDir = 'res';
 var option = 'global'; // global/profilebased/instancebased
 /****/
@@ -131,7 +131,6 @@ console.log('Measure errors: ' + measureErrors + ' '+ measureErrors.length + '\n
 console.log('Solved parse errors: ' + solvedParseErrors + ' '+ solvedParseErrors.length + '\n');
 
 function writeBadFeatures(measurement){
-    
     var labels = measurement.getLabels(0).map(function(value){return value.substring(0,value.length-1);});
     var values = measurement.getAbsoluteResults();
     
@@ -140,7 +139,7 @@ function writeBadFeatures(measurement){
     var expand = {};
     
     for(var i=0;i<labels.length;i++){
-        if(values[i] === 0){
+        if(values[i] < 18){ // 10% of 182 authors
             var pos  = labels[i].indexOf('=');
             var slot = labels[i].substring(0,pos);
             var cat  = labels[i].substring(pos+1);
@@ -157,7 +156,7 @@ function writeBadFeatures(measurement){
                 remove[slot] = [cat];
             }
         }
-        else if(values[i]>=1760){
+        else if(values[i]>=4374){ // one per repository
            var pos  = labels[i].indexOf('=');
            var slot = labels[i].substring(0,pos);
            var cat  = labels[i].substring(pos+1);
@@ -181,7 +180,6 @@ function writeBadFeatures(measurement){
     var stream2 = fs.createWriteStream(path.join(outputDir,'expand.txt'));
     for(key in expand){
         if(expand.hasOwnProperty(key)){
-            
             stream2.write(key+'\n');
             var values = expand[key];
             var url = key.substring(0,key.length-1);
