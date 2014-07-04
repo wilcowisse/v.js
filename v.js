@@ -9,9 +9,9 @@ var measurementBuilder = require('./measurementbuilder.js');
 
 
 /****/
-var inputDir  = 'objects';
+var inputDir  = 'tstobj';
 var outputDir = 'res';
-var option = 'global'; // global/profilebased/instancebased
+var option = 'instancebased'; // global/profilebased/instancebased
 /****/
 
 var parseErrors = [];
@@ -99,7 +99,8 @@ authors.forEach(function(author){
                 }    
             }
             catch(error){
-                console.log('Refactor error: ' + file);
+                debugger;
+                console.log('Measurement error: ' + file);
                 measureErrors.push(file);
                 success=false;
             }

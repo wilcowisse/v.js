@@ -3,7 +3,6 @@
  */
 
 var esprima = require('esprima');
-
 var fs = require('fs');
 var path = require('path');
 var refactor = require('./refactor.js');

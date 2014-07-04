@@ -222,7 +222,7 @@ DescendantCountMeter.prototype.run = function(node,pointer){
 	    node[property].forEach(function(child){this.runNode(child,pointer)},this);
 	}
 	else if(node[property].type==='NullNode'){
-	    if(rangeList[0][1]<=0)
+	    if(this.rangeList[0][1]<=0)
 	        pointer.increment(0);
 	}
 	else{

@@ -6,11 +6,11 @@ var Measurement = require('./Measurement.js');
 function build(){
     var measurement = new Measurement();
     addDistributionMeters(measurement);
-    //addStringLengthMeters(measurement);
-    //addListLengthMeters(measurement);
-    //addDescendantCountMeters(measurement);
-    //addStringPatternMeters(measurement);
-    //addLayoutMeters(measurement);
+    addStringLengthMeters(measurement);
+    addListLengthMeters(measurement);
+    addDescendantCountMeters(measurement);
+    addStringPatternMeters(measurement);
+    addLayoutMeters(measurement);
     //addCommentMeters(measurement);
     return measurement;
 }
@@ -18,7 +18,7 @@ function build(){
 var fibRange = [[0,0],[1,1],[2,2],[3,3],[4,5],[6,8],[9,13],[14,21],[22,34],[35,55],[56,Infinity]];
 var fibRangeShort = [[0,0],[1,1],[2,2],[3,3],[4,5],[6,8],[9,Infinity]];
 var expRange = [[0,0],[1,1],[2,2],[3,4],[5,8],[9,16],[17,32],[33,64],[65,128],[129,Infinity]];
-var expRangeLong = [[0,0],[1,1],[2,2],[3,4],[5,8],[9,16],[17,32],[33,64],[65,128],[129,256],[257,512],[513,1024],[1024,Infinity]];
+var expRangeLong = [[0,0],[1,1],[2,2],[3,4],[5,8],[9,16],[17,32],[33,64],[65,128],[129,256],[257,512],[513,Infinity]];
 
 function addStringLengthMeters(measurement){
     measurement.addAnalysis('Identifier->length','Identifier', new meters.ChildLengthMeter('name',fibRange));
@@ -43,7 +43,7 @@ function addListLengthMeters(measurement){
     measurement.addAnalysis('CallExpression.arguments->length','CallExpression', new meters.ChildLengthMeter('arguments',fibRangeShort));
     measurement.addAnalysis('ArrayExpression.elements->length','ArrayExpression', new meters.ChildLengthMeter('elements',expRange));
     measurement.addAnalysis('ObjectExpression.properties->length','ObjectExpression', new meters.ChildLengthMeter('properties',expRange));
-    measurement.addAnalysis('VariableDeclaration.declarations->length','VariableDeclaration', new meters.ChildLengthMeter('declarations',expRangeShort));
+    measurement.addAnalysis('VariableDeclaration.declarations->length','VariableDeclaration', new meters.ChildLengthMeter('declarations',[[0,0],[1,1],[2,2],[3,4]]));
 }
 
 function addStringPatternMeters(measurement){
