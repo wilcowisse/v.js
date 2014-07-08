@@ -18,7 +18,7 @@ function BracketExpression(value_obj, range_arr){
 	this.value=value_obj;
 }
 
-var counter =0;
+var counter = 0;
 function refactorAst(raw, ast_obj, layout_bool) {
 	traverse(ast_obj, {
 		pre: function(node, parent, prop, idx) {
@@ -84,16 +84,9 @@ function rewriteOperator(raw,node){
 			}
 		}
 		else{
-		
 			var loc = node.left.range[1];
 			loc=vutil.eatWhiteSpace(raw,loc);
-			var loc2=0;
-			try{
-				loc2 = vutil.eatString(raw,operatorType,loc);
-			}
-			catch(e){
-				debugger;
-			}
+			loc2 = vutil.eatString(raw,operatorType,loc);
 		}
 		var range = [loc,loc2];
 		node.operator = new Node(operatorType,range);
@@ -108,8 +101,6 @@ function rewriteVariableKind(node){
 		node.kind = new Node(kind,[loc,loc2]);
 	}
 }
-
-var num = 0;
 
 function rewriteNestedExpressions(raw,node,parent,prop,idx){
 	if(vutil.isExpression(node)){
@@ -210,6 +201,12 @@ function rewriteNull(raw,node) {
 	        if(raw[loc] === ','){
 	            node.elements[node.elements.length] = new NullNode(loc+1);
 	        }
+	    }
+	}
+	else if(node.type==='ObjectExpression' && node.properties.length>0){ // corner case: {elem,}
+		var loc=vutil.eatWhiteSpace(raw,node.properties[node.properties.length-1].range[1]);
+	    if(raw[loc]===','){
+	        node.properties.push(new NullNode(loc+1));
 	    }
 	}
 	else if(node.type === 'FunctionExpression' && node.id===null){

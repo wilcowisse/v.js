@@ -8,7 +8,7 @@ function Layout(str,start,end){
         this.type='BlockComment';
     else
         this.type='Layout';
-
+    
 	this.value=str;
 	this.range=[start,end];
 }
@@ -119,7 +119,14 @@ function pointerToNum(raw, node, layoutPointer, startIndex){
 		}
 	}
 	else{ // string
-		return vutil.eatString(raw,layoutPointer,startIndex);
+	    try{
+	        var pos = vutil.eatString(raw,layoutPointer,startIndex);
+	    }
+	    catch(error){
+	        debugger;
+	        throw error;
+	    }
+		return pos;
 	}
 }
 
@@ -178,6 +185,8 @@ function createLayoutNodeArray(raw,node,prop,symbol,action){
 		if(action === 'before') { // layout before symbol
 			var start_num = thisNodeEnd;
 			var end_num = vutil.eatWhiteSpace(raw,thisNodeEnd);
+			if(raw[end_num]!==symbol)
+			    debugger;
 			console.assert(raw[end_num]===symbol);
 			var layout_str = raw.substring(start_num,end_num);
 			layoutList.push(new Layout(layout_str,start_num,end_num));

@@ -9,9 +9,9 @@ var measurementBuilder = require('./measurementbuilder.js');
 
 
 /****/
-var inputDir  = 'tstobj';
+var inputDir  = 'cleaned_export200grouped';
 var outputDir = 'res';
-var option = 'instancebased'; // global/profilebased/instancebased
+var option = 'global'; // global/profilebased/instancebased
 /****/
 
 var parseErrors = [];
@@ -35,7 +35,6 @@ authors.forEach(function(author){
         files.forEach(function(file){
             console.log('  '+file);
             var success = true;
-            //success = false;
             try{
                 var filename = path.join(inputDir,author,repo,file);
                 var raw = fs.readFileSync(filename,'utf-8');
@@ -89,7 +88,9 @@ authors.forEach(function(author){
                 }
             }
             catch(error){
-                console.log('Refactor error: ' + file); 
+                debugger;
+                console.log('___ERROR IN MEASUREMENT___');
+                fs.appendFileSync('REFACTORERRORS.txt', error.stack+"\n===========================================\n");
                 refactorErrors.push(file);
                 success=false;
             }
@@ -99,7 +100,6 @@ authors.forEach(function(author){
                 }    
             }
             catch(error){
-                debugger;
                 console.log('Measurement error: ' + file);
                 measureErrors.push(file);
                 success=false;

@@ -10,7 +10,7 @@ var vutil = require('./util.js');
 var futil = require('./fsutil.js');
 var measurementBuilder = require('./measurementbuilder.js');
 
-var filename = 'tests/esprima.js';//'mapmeld#noonniep#public-scripts-livestream.js';//
+var filename = 'tests/test.js';//
 var measurement = measurementBuilder.build();
 
 try{
@@ -18,9 +18,11 @@ try{
     var ast=esprima.parse(raw,{range:true,loc:true});
 }
 catch(error){
+    debugger;
     console.log("PARSE ERROR: "+error.message);
 }
 
+debugger;
 refactor(raw,ast,true);
 //vutil.printAst(ast, false, true);
 debugger;

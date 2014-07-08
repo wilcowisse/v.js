@@ -48,7 +48,7 @@ DistributionMeter.prototype.run=function(node,pointer){
 	
 	if(!matched){
 	    debugger;
-		//throw new Error("No match found");
+		throw new Error("No match found");
 	}
 }
 
@@ -78,7 +78,12 @@ ChildLengthMeter.prototype.run = function(node,pointer){
 	
 	var length;
 	if(typeof node[property] === 'string' || Array.isArray(node[property])){
-	    length = node[property].length;
+	    if(Array.isArray(node[property]) && node[property].length==1 && node[property][0].type === 'NullNode'){
+	        length = 0;debugger;
+        }
+        else{
+            length = node[property].length;
+        }
 	}
 	else if(node != null && node.type==='NullNode'){
 	    length = 0;
@@ -87,7 +92,7 @@ ChildLengthMeter.prototype.run = function(node,pointer){
 	    debugger;
     	throw new Error('Wrong node type');
 	}
-	
+
 	var rangeList=this.rangeList;
 	for(var i=0;i<rangeList.length;i++){
 	    if(rangeList[i].length != 2){

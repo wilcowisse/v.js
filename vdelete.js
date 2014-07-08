@@ -22,7 +22,7 @@ futil.createDir(outputDir);
 
 var authors = futil.getDirList(inputDir);
 authors.forEach(function(author){
-    console.log('Minifying '+author);
+    console.log('Analyzing '+author);
 
     futil.createDir(path.join(outputDir,author));
     

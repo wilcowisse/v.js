@@ -7,7 +7,6 @@ function getDirList(dir) {
 			.filter(function(value){
 				return fs.statSync(dir+'/'+value).isDirectory();
 			});
-
 	}
 	catch(error){
 		console.log("FILE SYSTEM ERROR in fsutil.getDirList: " + error.message);

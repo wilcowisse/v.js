@@ -89,7 +89,7 @@ authors.forEach(function(author){
             }
             try{
                 if(success){
-                    refactor(raw,ast,false);
+                    refactor(raw,ast,true);
                 }
             }
             catch(error){

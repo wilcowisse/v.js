@@ -29,7 +29,15 @@ Measurement.prototype.empty = function(){
 	this.analysers.forEach(function(analyser){analyser.empty();});
 }
 Measurement.prototype.runNode = function(node){
-	this.analysers.forEach(function(analyser){analyser.run(node);});
+	this.analysers.forEach(function(analyser){
+	    try{
+	        analyser.run(node);
+        }
+        catch(error){
+            console.log('___ERROR IN MEASUREMENT___');
+            fs.appendFileSync('MEASUREERRORS.txt', error.stack+"\n===========================================\n");
+        }
+	});
 }
 Measurement.prototype.runAst = function(ast_obj){
 	var runNode=this.runNode.bind(this);
@@ -64,11 +72,22 @@ Measurement.prototype.flush = function(filePath){
         throw new Error('Number of labels and values are not equal');
     }
     
+    var fileContentArray = new Array(labels.length);
+    
+    for(var i=0; i<labels.length; i++){
+        fileContentArray[i] = labels[i] + ' ' + values[i] + ' ' + absoluteValues[i];
+    }
+    
+    var data = fileContentArray.join('\n');
+    fs.writeFileSync(filePath, data);
+    
+    /*
     var stream = fs.createWriteStream(filePath);
     for(var i=0;i<labels.length;i++){
         stream.write(labels[i] + ' ' + values[i]+' '+absoluteValues[i]+'\n');
     }
     stream.end();
+    */
     this.empty();
 
 }

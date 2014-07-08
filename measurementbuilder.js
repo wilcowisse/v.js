@@ -6,12 +6,12 @@ var Measurement = require('./Measurement.js');
 function build(){
     var measurement = new Measurement();
     addDistributionMeters(measurement);
+    //addCommentMeters(measurement);
     addStringLengthMeters(measurement);
     addListLengthMeters(measurement);
     addDescendantCountMeters(measurement);
     addStringPatternMeters(measurement);
-    addLayoutMeters(measurement);
-    //addCommentMeters(measurement);
+    //addLayoutMeters(measurement);
     return measurement;
 }
 
@@ -43,7 +43,7 @@ function addListLengthMeters(measurement){
     measurement.addAnalysis('CallExpression.arguments->length','CallExpression', new meters.ChildLengthMeter('arguments',fibRangeShort));
     measurement.addAnalysis('ArrayExpression.elements->length','ArrayExpression', new meters.ChildLengthMeter('elements',expRange));
     measurement.addAnalysis('ObjectExpression.properties->length','ObjectExpression', new meters.ChildLengthMeter('properties',expRange));
-    measurement.addAnalysis('VariableDeclaration.declarations->length','VariableDeclaration', new meters.ChildLengthMeter('declarations',[[0,0],[1,1],[2,2],[3,4]]));
+    measurement.addAnalysis('VariableDeclaration.declarations->length','VariableDeclaration', new meters.ChildLengthMeter('declarations',[[0,0],[1,1],[2,4],[4,Infinity]]));
 }
 
 function addStringPatternMeters(measurement){
@@ -66,15 +66,17 @@ function addStringPatternMeters(measurement){
 }
 
 function addCommentMeters(measurement){
-    // layout with comments: number of tab,enter,space before and after comment, comment type, comment length, parent
-    
     // parent distributions
-    var expressionsAndStatements = lf.createExpressionList()
-                                    .build().concat(lf.createStatementList()
-                                    .build(),'Property','SwitchCase','CatchClause','VariableDeclarator');
+    measurement.addAnalysis('BlockCommentParent','BlockComment',new meters.ParentDistributionMeter('type',['ArrayExpression','ObjectExpression','FunctionExpression','CallExpression','MemberExpression','BlockStatement','ExpressionStatement','SwitchStatement','FunctionDeclaration','VariableDeclaration','SwitchCase','Program','Otherwise']));
+    measurement.addAnalysis('LineCommentParent','LineComment',new meters.ParentDistributionMeter('type',['ArrayExpression','ObjectExpression','FunctionExpression','BinaryExpression','LogicalExpression','ConditionalExpression','NewExpression','CallExpression','MemberExpression','BracketExpression','BlockStatement','ExpressionStatement','IfStatement','SwitchStatement','ReturnStatement','ThrowStatement','FunctionDeclaration','VariableDeclaration','SwitchCase','Program','Otherwise']));
     
-    measurement.addAnalysis('BlockCommentParent','BlockComment',new meters.ParentDistributionMeter('type',expressionsAndStatements));
-    measurement.addAnalysis('LineCommentParent','LineComment',new meters.ParentDistributionMeter('type',expressionsAndStatements));
+    // length 
+    measurement.addAnalysis('BlockComment->length','BlockComment', new meters.ChildLengthMeter('value',[[0,8],[9,16],[17,32],[33,64],[65,128],[129,256],[257,512],[513,1024],[1025,Infinity]]));
+    measurement.addAnalysis('LineComment->length','LineComment', new meters.ChildLengthMeter('value',[[0,4],[5,8],[9,16],[17,32],[33,64],[65,128],[129,256],[257,512],[513,Infinity]]));
+    
+    // proportion of comment types
+    measurement.addAnalysis('Comment/*',['BlockComment','LineComment'].join(), new meters.DistributionMeter('type',['BlockComment','LineComment']));
+    
 }
 
 function addLayoutMeters(measurement){
@@ -372,7 +374,7 @@ function addDistributionMeters(measurement){
             else
                 slots[slot] = slots[biNodeKey];
             var valueList = slots[slot].build();
-            measurement.addAnalysis(slot,slot,new meters.DistributionMeter('type',valueList));
+            measurement.addAnalysis(slot,slot, new meters.DistributionMeter('type',valueList));
             //debugger;
         });
         
